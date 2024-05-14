@@ -7,10 +7,15 @@
     <link rel="stylesheet" href="/css/main.css">
 </head>
 <body>
-<%- body %>
+<%- include('../partials/header') %>
+<%- include('../partials/SignInModal') %>
+<%- include('../partials/LoginModal') %>
 
+<%- body %>
+<%- include('../partials/footer') %>
 </body>
 
+    <script src="/js/modal.js" ></script>
 </html>
 
 
