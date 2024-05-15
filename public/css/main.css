@@ -56,6 +56,9 @@ a:hover {
 MODAL
 * * * * * * * * * * * * * * * * * * * * * * *  */
 
+#afterSign {
+    display: none;
+}
 .modal {
     display: none;
     position: fixed;
