@@ -2,7 +2,9 @@ import Pastry from "../models/Pastry.js";
 import User from "../models/User.js";
 
 export const gameInfo = async (req, res) => {
-    if (await getAvailablePastries().length > 0) {
+    const pastriesAvailable = await getAvailablePastries();
+    console.log(pastriesAvailable)
+    if (pastriesAvailable.length > 0) {
         res.render('pages/game', {
             chanceCount: req.session.user.chanceCount,
             username: req.session.user.username,
@@ -28,7 +30,7 @@ export const PlayGame = async (req, res) => {
             return res.status(404).json({message: "Utilisateur non trouvé."});
         }
         if (user.game > 0) {
-            user.game -= 1;  // Décrémente le nombre de chances
+            user.game -= 1;
             req.session.user.chanceCount = user.game;
             await user.save();
             res.json({message: "Chance utilisée.", chanceCount: user.game});
@@ -46,18 +48,18 @@ export const winGame = async (req, res) => {
         const winNumber = req.params.pastries;
         const parts = winNumber.split('=');
         const numberOfPastriesWin = Number(parts[1]);
-        if (isNaN(numberOfPastriesWin)) {
-            return res.status(500).json({message: "Erreur lors de la récupération des pâtisseries"});
+        console.log(numberOfPastriesWin)
+        if (isNaN(numberOfPastriesWin) || numberOfPastriesWin === 0) {
+            return res.status(500).json({message: "Vous avez perdu"});
         }
 
         let pastriesAvailable = await getAvailablePastries();
         if (pastriesAvailable.length === 0) {
-            console.log('Aucune pâtisserie disponible')
             return res.status(400).json({message: "Aucune pâtisserie disponible."});
         }
 
         let i = 1;
-        let initialNumber = numberOfPastriesWin;
+        let initialNumber = 3;
         let pastries = await findRandomPastries(i);
         let awardedPastries = [];
 
@@ -83,13 +85,14 @@ export const winGame = async (req, res) => {
             [`pastriesName${index + 1}`]: pastry.name,
             [`pastriesNumber${index + 1}`]: 1
         }));
+        console.log(response)
 
         res.json({
             pastries: response,
             totalAwarded: awardedPastries.length
         });
 
-        console.log(response);
+
 
     } catch (err) {
         console.log(err);

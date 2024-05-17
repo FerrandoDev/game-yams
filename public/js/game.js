@@ -13,15 +13,20 @@ document.getElementById('play').addEventListener('click', async () => {
 
             const diceElements = document.querySelectorAll('#dice-results li');
             for (let i = 0; i < diceResults.results.length; i++) {
-                await new Promise(resolve => setTimeout(resolve, 100));
+                await new Promise(resolve => setTimeout(resolve, 200));
                 console.log(diceElements[i]);
                 diceElements[i].textContent = `Dé ${i + 1}: ${diceResults.results[i]}`;
             }
 
+            console.log(dataPastries);
             let resultMessage = 'Désolé, vous avez perdu.';
             if (diceResults.win) {
-                let prizeNames = dataPastries.pastries.map(p => p.pastriesName1).join(', ');
-                resultMessage = `Félicitations, vous avez gagné! Prix: ${dataPastries.totalAwarded} pâtisseries: ${prizeNames}`;
+                if (Array.isArray(dataPastries.pastries) && dataPastries.pastries.length > 0) {
+                    let prizeNames = dataPastries.pastries.map((p, i) => p[`pastriesName${i + 1}`]).join(', ');
+                    resultMessage = `Félicitations, vous avez gagné! Prix: ${dataPastries.totalAwarded} pâtisseries: ${prizeNames}`;
+                } else {
+                    resultMessage = 'Félicitations, vous avez gagné, mais il n\'y a pas assez de pâtisseries disponibles.';
+                }
             }
             document.getElementById('game-result').textContent = resultMessage;
         } else {
