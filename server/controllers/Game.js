@@ -1,22 +1,16 @@
 import Pastry from "../models/Pastry.js";
 import User from "../models/User.js";
+import Stat from "../models/Stat.js";
 
 export const gameInfo = async (req, res) => {
     const pastriesAvailable = await getAvailablePastries();
-    console.log(pastriesAvailable)
-    if (pastriesAvailable.length > 0) {
-        res.render('pages/game', {
-            chanceCount: req.session.user.chanceCount,
-            username: req.session.user.username,
-            gameStatut: 'true'
-        });
-    } else {
-        res.render('pages/game', {
-            chanceCount: req.session.user.chanceCount,
-            username: req.session.user.username,
-            gameStatut: 'false'
-        });
-    }
+
+    res.render('pages/game', {
+        winners: req.stats,
+        chanceCount: req.session.user.chanceCount,
+        username: req.session.user.username,
+        gameStatut: pastriesAvailable.length > 0 ? 'true' : 'false'
+    });
 
 
 }
@@ -48,7 +42,7 @@ export const winGame = async (req, res) => {
         const winNumber = req.params.pastries;
         const parts = winNumber.split('=');
         const numberOfPastriesWin = Number(parts[1]);
-        console.log(numberOfPastriesWin)
+
         if (isNaN(numberOfPastriesWin) || numberOfPastriesWin === 0) {
             return res.status(500).json({message: "Vous avez perdu"});
         }
@@ -58,20 +52,15 @@ export const winGame = async (req, res) => {
             return res.status(400).json({message: "Aucune pâtisserie disponible."});
         }
 
-        let i = 1;
         let initialNumber = 3;
-        let pastries = await findRandomPastries(i);
         let awardedPastries = [];
 
         while (initialNumber > 0 && pastriesAvailable.length > 0) {
+            const pastries = await findRandomPastries(1);
             if (pastries.length > 0) {
                 awardedPastries.push(pastries[0]);
                 await Pastry.findByIdAndUpdate(pastries[0]._id, {$inc: {number: -1}});
                 initialNumber--;
-            }
-
-            if (initialNumber > 0) {
-                pastries = await findRandomPastries(i);
             }
 
             pastriesAvailable = await getAvailablePastries();
@@ -81,18 +70,29 @@ export const winGame = async (req, res) => {
             return res.status(500).json({message: "Erreur lors de la récupération des pâtisseries."});
         }
 
-        const response = awardedPastries.map((pastry, index) => ({
-            [`pastriesName${index + 1}`]: pastry.name,
-            [`pastriesNumber${index + 1}`]: 1
-        }));
-        console.log(response)
+        // Regrouper les pâtisseries par nom et additionner les quantités
+        const aggregated = {};
+        awardedPastries.forEach(pastry => {
+            if (aggregated[pastry.name]) {
+                aggregated[pastry.name]++;
+            } else {
+                aggregated[pastry.name] = 1;
+            }
+        });
+
+        // Formater le résultat comme souhaité
+        const response = Object.keys(aggregated).map(name => ` ${aggregated[name]} ${name}`);
+        // Enregistrer les statistiques
+        const stat = {
+            username: req.session.user.username,
+            pastries: (response[0] + (response[1] || '') + (response[2] || ''))
+        };
+        await createStat(req, res, stat);
 
         res.json({
             pastries: response,
             totalAwarded: awardedPastries.length
         });
-
-
 
     } catch (err) {
         console.log(err);
@@ -100,6 +100,7 @@ export const winGame = async (req, res) => {
     }
 };
 
+// Fonctions auxiliaires
 async function findRandomPastries(requiredCount) {
     return Pastry.aggregate([
         {$match: {number: {$gte: requiredCount}}},
@@ -117,3 +118,14 @@ async function getAvailablePastries() {
         throw err;
     }
 }
+
+async function createStat(req, res, winnerGame) {
+    try {
+        const newStat = new Stat(winnerGame);
+        await newStat.save();
+    } catch (err) {
+        console.log(err);
+        res.status(500).send("Erreur lors de l'ajout des statistiques");
+    }
+}
+

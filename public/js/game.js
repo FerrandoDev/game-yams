@@ -22,7 +22,7 @@ document.getElementById('play').addEventListener('click', async () => {
             let resultMessage = 'Désolé, vous avez perdu.';
             if (diceResults.win) {
                 if (Array.isArray(dataPastries.pastries) && dataPastries.pastries.length > 0) {
-                    let prizeNames = dataPastries.pastries.map((p, i) => p[`pastriesName${i + 1}`]).join(', ');
+                    let prizeNames = dataPastries.pastries[0] + (dataPastries.pastries[1] || '') + (dataPastries.pastries[2] || '');
                     resultMessage = `Félicitations, vous avez gagné! Prix: ${dataPastries.totalAwarded} pâtisseries: ${prizeNames}`;
                 } else {
                     resultMessage = 'Félicitations, vous avez gagné, mais il n\'y a pas assez de pâtisseries disponibles.';
