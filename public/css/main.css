@@ -109,3 +109,18 @@ MODAL
     height: 100%;
 }
 
+/* * * * * * * * * * * * * * * * * * * * * * * *,
+GAME
+* * * * * * * * * * * * * * * * * * * * * * *  */
+
+.game#false {
+    display: none;
+}
+
+.finish#false {
+    display: block;
+}
+
+.finish#true {
+    display: none;
+}

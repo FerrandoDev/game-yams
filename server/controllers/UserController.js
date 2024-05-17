@@ -31,7 +31,7 @@ export const loginUser = async (req, res) => {
         const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
         res.cookie('token', token, { maxAge: 3600000, httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Strict' });
 
-        req.session.user = { chanceCount: user.game, username: user.username };
+        req.session.user = { chanceCount: user.game, username: user.username, id: user._id};
         req.session.save(err => {
             if (err) {
                 console.error(err);

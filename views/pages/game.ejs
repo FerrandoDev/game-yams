@@ -1,15 +1,22 @@
-<p> Bonne Chance <%= username%></p>
-<section class="game">
+<p>Bonne Chance <%= username %></p>
+<section class="game" id="<%= gameStatut %>">
     <header>
-        <h2> The game </h2>
+        <h2>The Game</h2>
     </header>
-    <ul>
-        <li id="first-dice"></li>
-        <li id="second-dice"></li>
-        <li id="third-dice"></li>
-        <li id="fourth-dice"></li>
-        <li id="fifth-dice"></li>
+    <ul id="dice-results">
+        <li id="dice-1"></li>
+        <li id="dice-2"></li>
+        <li id="dice-3"></li>
+        <li id="dice-4"></li>
+        <li id="dice-5"></li>
     </ul>
-    <button >PLAY</button>
-    <p>Chance : <%= chanceCount %></p>
+    <button id="play">PLAY</button>
+    <p id="chance">Chance: <%= chanceCount %></p>
+    <p id="game-result"></p>
 </section>
+
+<section class="finish" id="<%= gameStatut %>">
+    <h2> Le jeu est terminer</h2>
+    <p>  si vous avez gagner un mail vous a était envoyer avec un code pour récupérer vos gains en boulangerie</p>
+</section>
+<script src="/js/Game.js"></script>
